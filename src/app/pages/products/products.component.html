@@ -1,0 +1,44 @@
+<main class="page">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">OrderDispatch Customer</div>
+      <h1>Products</h1>
+      <p class="subline">Pick items and continue to checkout.</p>
+    </div>
+    <div class="hero-actions">
+      <button mat-stroked-button routerLink="/home">Back to stores</button>
+      <button mat-raised-button color="primary">View basket</button>
+    </div>
+  </header>
+
+  <section class="product-grid">
+    <mat-card class="product-card" *ngFor="let product of products">
+      <div class="product-top">
+        <div>
+          <div class="product-name">{{ product.name }}</div>
+          <div class="product-size">{{ product.size }}</div>
+        </div>
+        <div class="product-price">{{ product.price }}</div>
+      </div>
+      <div class="product-tags">
+        <mat-chip-set>
+          <mat-chip *ngFor="let tag of product.tags">{{ tag }}</mat-chip>
+        </mat-chip-set>
+      </div>
+      <div class="product-meta">
+        <div class="meta-item">
+          <mat-icon>star</mat-icon>
+          <span>{{ product.rating }}</span>
+        </div>
+        <div class="meta-item">
+          <mat-icon>local_grocery_store</mat-icon>
+          <span>In stock</span>
+        </div>
+      </div>
+      <div class="product-actions">
+        <button mat-stroked-button>Add to list</button>
+        <button mat-raised-button color="primary">Add</button>
+      </div>
+    </mat-card>
+  </section>
+</main>
