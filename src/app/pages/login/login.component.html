@@ -1,0 +1,79 @@
+<div class="login-page">
+  <div class="login-shell">
+    <section class="login-hero">
+      <div class="eyebrow">Order Dispatcher</div>
+      <h1>Sign in to manage your customer deliveries.</h1>
+      <p class="hero-copy">
+        Track live orders, contact couriers, and keep your storefront ready for the
+        next pickup.
+      </p>
+      <div class="hero-grid">
+        <div class="hero-card">
+          <div class="hero-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div>
+            <div class="hero-title">Live status</div>
+            <div class="hero-text">Real-time ETAs and driver activity.</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-icon">
+            <mat-icon>local_shipping</mat-icon>
+          </div>
+          <div>
+            <div class="hero-title">Dispatch ready</div>
+            <div class="hero-text">Auto-assign deliveries by zone.</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-icon">
+            <mat-icon>support_agent</mat-icon>
+          </div>
+          <div>
+            <div class="hero-title">Customer care</div>
+            <div class="hero-text">One-click support for updates.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <mat-card class="login-panel">
+      <div class="login-header">
+        <div class="login-badge">Customer Portal</div>
+        <h2>Welcome back</h2>
+        <p>Use your dispatch credentials to continue.</p>
+      </div>
+
+      <form class="login-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Work email</mat-label>
+          <input matInput type="email" placeholder="name@company.com" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" placeholder="••••••••" />
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-checkbox>Remember me</mat-checkbox>
+          <a class="link" href="#">Forgot password?</a>
+        </div>
+
+        <button mat-flat-button color="primary" type="button">
+          Sign in
+        </button>
+
+        <button mat-stroked-button type="button" routerLink="/home">
+          Continue as guest
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <span>New to Order Dispatcher?</span>
+        <a class="link" routerLink="/home">Explore stores</a>
+      </div>
+    </mat-card>
+  </div>
+</div>

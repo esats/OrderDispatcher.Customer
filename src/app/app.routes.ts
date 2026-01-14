@@ -3,6 +3,11 @@ import { FullComponent } from './layouts/full/full.component';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
     path: '',
     component: FullComponent,
     children: [
