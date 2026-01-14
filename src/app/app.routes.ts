@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { FullComponent } from './layouts/full/full.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -10,6 +11,8 @@ export const routes: Routes = [
   {
     path: '',
     component: FullComponent,
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       {
         path: '',
