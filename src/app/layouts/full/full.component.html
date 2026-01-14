@@ -4,7 +4,12 @@
       <span class="brand-dot"></span>
       OrderDispatch
     </div>
-    <div class="user-pill">Customer</div>
+    <div class="user-actions">
+      <div class="user-pill">Customer</div>
+      <button mat-stroked-button class="logout-button" (click)="logout()">
+        Logout
+      </button>
+    </div>
   </header>
   <router-outlet></router-outlet>
 </div>

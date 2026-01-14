@@ -7,6 +7,13 @@ export const PagesRoutes: Routes = [
       import('./home/home.component').then((m) => m.HomeComponent),
   },
   {
+    path: 'profile/edit',
+    loadComponent: () =>
+      import('./profile/profile-edit/profile-edit.component').then(
+        (m) => m.ProfileEditComponent
+      ),
+  },
+  {
     path: 'profile',
     loadComponent: () =>
       import('./profile/profile.component').then((m) => m.ProfileComponent),

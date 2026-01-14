@@ -42,3 +42,17 @@
   color: #1d4f35;
   background: #e7f7ea;
 }
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logout-button {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0 12px;
+  height: 32px;
+}

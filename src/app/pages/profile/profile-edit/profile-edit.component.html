@@ -1,0 +1,66 @@
+<main class="page">
+  <header class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Edit profile</div>
+      <h1>Customer profile</h1>
+      <p class="subline">Review your account details before making updates.</p>
+    </div>
+    <div class="hero-actions">
+      <button mat-stroked-button routerLink="/profile">Back to profile</button>
+    </div>
+  </header>
+
+  <mat-card class="card" *ngIf="loading">
+    <div class="state">
+      <mat-icon>hourglass_top</mat-icon>
+      <span>Loading your profile details...</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="card error" *ngIf="!loading && errorMessage">
+    <div class="state">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="card success" *ngIf="!loading && successMessage">
+    <div class="state">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ successMessage }}</span>
+    </div>
+  </mat-card>
+
+  <mat-card class="card" *ngIf="!loading && !errorMessage">
+    <div class="card-title">Account details</div>
+    <mat-divider></mat-divider>
+    <form class="field-grid" [formGroup]="form">
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>User ID</mat-label>
+        <input matInput formControlName="UserId" readonly />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>First name</mat-label>
+        <input matInput formControlName="FirstName" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Last name</mat-label>
+        <input matInput formControlName="LastName" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="field">
+        <mat-label>Phone number</mat-label>
+        <input matInput formControlName="PhoneNumber" />
+      </mat-form-field>
+    </form>
+    <div class="card-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="saveProfile()"
+        [disabled]="saving"
+      >
+        {{ saving ? 'Saving...' : 'Save' }}
+      </button>
+    </div>
+  </mat-card>
+</main>
