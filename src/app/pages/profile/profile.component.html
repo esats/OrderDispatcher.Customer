@@ -4,8 +4,14 @@
       <div class="avatar">AR</div>
       <div class="hero-copy">
         <div class="eyebrow">OrderDispatch Customer</div>
-        <h1>Amelia Rivera</h1>
-        <p class="subline">Express Member - Since 2021 - San Francisco, CA</p>
+        <h1>{{ fullName }}</h1>
+        <p class="subline">
+          <mat-icon>phone</mat-icon>
+          <span> {{ phoneNumber }}</span>
+        </p>
+        <p class="subline">
+          Express Member - Since {{ sinceYear }}
+        </p>
         <div class="hero-actions">
           <button mat-raised-button color="primary" routerLink="/profile/edit">
             Edit profile
@@ -31,29 +37,6 @@
   </header>
 
   <section class="grid">
-    <mat-card class="card">
-      <div class="card-title">Account details</div>
-      <mat-divider></mat-divider>
-      <mat-list class="dense-list">
-        <mat-list-item>
-          <mat-icon matListItemIcon>mail</mat-icon>
-          <div matListItemTitle>amelia.rivera@email.com</div>
-          <div matListItemLine>Primary email</div>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-icon matListItemIcon>phone</mat-icon>
-          <div matListItemTitle>(415) 555-0142</div>
-          <div matListItemLine>Mobile number</div>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-icon matListItemIcon>verified_user</mat-icon>
-          <div matListItemTitle>Identity verified</div>
-          <div matListItemLine>Last updated Sep 2025</div>
-        </mat-list-item>
-      </mat-list>
-      <button mat-button color="primary">Update contact info</button>
-    </mat-card>
-
     <mat-card class="card">
       <div class="card-title">Delivery addresses</div>
       <mat-divider></mat-divider>
