@@ -41,23 +41,15 @@
       <div class="card-title">Delivery addresses</div>
       <mat-divider></mat-divider>
       <mat-list class="dense-list">
-        <mat-list-item>
+        <mat-list-item *ngFor="let address of addresses">
           <mat-icon matListItemIcon>home</mat-icon>
-          <div matListItemTitle>Market Street</div>
-          <div matListItemLine>1524 Market St, Apt 9B</div>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-icon matListItemIcon>work</mat-icon>
-          <div matListItemTitle>Downtown Office</div>
-          <div matListItemLine>201 Mission St, Floor 18</div>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-icon matListItemIcon>place</mat-icon>
-          <div matListItemTitle>Parents' House</div>
-          <div matListItemLine>72 Oak Ridge Dr, Daly City</div>
+          <div matListItemTitle>{{ address.title }}</div>
+          <div matListItemLine>{{ address.addressLine }}</div>
         </mat-list-item>
       </mat-list>
-      <button mat-button color="primary">Add new address</button>
+      <button mat-button color="primary" routerLink="/profile/address/new">
+        Add new address
+      </button>
     </mat-card>
 
     <mat-card class="card">

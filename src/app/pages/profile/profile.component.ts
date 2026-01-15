@@ -1,3 +1,4 @@
+import { NgFor } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,10 +16,22 @@ interface GetUserResponse {
   value?: Record<string, unknown> | null;
 }
 
+interface AddressItem {
+  title: string;
+  addressLine: string;
+}
+
+interface GetAddressesResponse {
+  isSuccess?: boolean;
+  message?: string | null;
+  value?: AddressItem[] | null;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [
+    NgFor,
     MatButtonModule,
     MatCardModule,
     MatChipsModule,
@@ -35,6 +48,7 @@ export class ProfileComponent implements OnInit {
   phoneNumber = '';
   sinceYear = '';
   errorMessage = '';
+  addresses: AddressItem[] = [];
 
   constructor(
     private readonly api: ApiService,
@@ -75,6 +89,19 @@ export class ProfileComponent implements OnInit {
       error: (err) => {
         this.errorMessage =
           err?.message || 'Unable to load profile details.';
+      },
+    });
+
+    this.api.get<GetAddressesResponse>('/auth/profile/getAllAddresses').subscribe({
+      next: (response) => {
+        if (response?.isSuccess === false) {
+          return;
+        }
+
+        this.addresses = response?.value ?? [];
+      },
+      error: () => {
+        this.addresses = [];
       },
     });
   }

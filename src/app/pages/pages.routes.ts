@@ -14,6 +14,13 @@ export const PagesRoutes: Routes = [
       ),
   },
   {
+    path: 'profile/address/new',
+    loadComponent: () =>
+      import('./profile/profile-address-new/profile-address-new.component').then(
+        (m) => m.ProfileAddressNewComponent
+      ),
+  },
+  {
     path: 'profile',
     loadComponent: () =>
       import('./profile/profile.component').then((m) => m.ProfileComponent),
