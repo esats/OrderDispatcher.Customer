@@ -99,6 +99,14 @@
   box-shadow: 0 12px 24px rgba(28, 154, 79, 0.3);
 }
 
+.store-image {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 12px 24px rgba(28, 154, 79, 0.2);
+}
+
 .store-name {
   font-weight: 600;
   font-size: 18px;

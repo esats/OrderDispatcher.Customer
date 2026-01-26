@@ -14,28 +14,27 @@
   <section class="store-grid">
     <mat-card class="store-card" *ngFor="let store of stores">
       <div class="store-header">
-        <div class="store-icon">{{ store.short }}</div>
+        <div class="store-icon" *ngIf="!store.imageUrls?.length">{{ getInitials(store) }}</div>
+        <img
+          class="store-image"
+          *ngIf="store.imageUrls?.length"
+          [src]="store.imageUrls?.[0]"
+          [alt]="getStoreName(store)"
+        />
         <div class="store-copy">
-          <div class="store-name">{{ store.name }}</div>
-          <div class="store-meta">{{ store.meta }}</div>
+          <div class="store-name">{{ getStoreName(store) }}</div>
+          <div class="store-meta">{{ store.email || 'No email listed' }}</div>
         </div>
-        <mat-chip-set class="store-chips">
-          <mat-chip *ngFor="let tag of store.tags">{{ tag }}</mat-chip>
-        </mat-chip-set>
       </div>
       <mat-divider></mat-divider>
       <div class="store-body">
         <div class="store-info">
-          <mat-icon>schedule</mat-icon>
-          <span>{{ store.delivery }}</span>
+          <mat-icon>call</mat-icon>
+          <span>{{ store.phoneNumber || 'Phone unavailable' }}</span>
         </div>
         <div class="store-info">
-          <mat-icon>place</mat-icon>
-          <span>{{ store.distance }}</span>
-        </div>
-        <div class="store-info">
-          <mat-icon>star</mat-icon>
-          <span>{{ store.rating }}</span>
+          <mat-icon>mail</mat-icon>
+          <span>{{ store.email || 'Email unavailable' }}</span>
         </div>
       </div>
       <div class="store-actions">

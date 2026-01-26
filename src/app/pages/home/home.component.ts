@@ -1,17 +1,30 @@
-import { NgFor } from '@angular/common';
-import { Component } from '@angular/core';
+import { NgFor, NgIf } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { ApiService } from '../../services/api.service';
+
+interface StoreWithImages {
+  userId?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  email?: string;
+  userName?: string;
+  imageMasterId?: number;
+  imageUrls?: string[];
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     NgFor,
+    NgIf,
     MatButtonModule,
     MatCardModule,
     MatChipsModule,
@@ -22,61 +35,38 @@ import { RouterLink } from '@angular/router';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
-  stores = [
-    {
-      name: 'Metro Market',
-      short: 'MM',
-      meta: 'Fresh products, daily delivery',
-      tags: ['Express', 'Organic'],
-      delivery: '30-45 min',
-      distance: '2.1 km',
-      rating: '4.8',
-    },
-    {
-      name: 'Green Basket',
-      short: 'GB',
-      meta: 'Healthy snacks',
-      tags: ['New', 'Vegan'],
-      delivery: '35-55 min',
-      distance: '3.4 km',
-      rating: '4.6',
-    },
-    {
-      name: 'City Grocers',
-      short: 'CG',
-      meta: 'Wide product selection',
-      tags: ['Discount', '24/7'],
-      delivery: '45-60 min',
-      distance: '4.2 km',
-      rating: '4.7',
-    },
-    {
-      name: 'Bakery Station',
-      short: 'BS',
-      meta: 'Fresh from the bakery',
-      tags: ['Bakery', 'Daily'],
-      delivery: '25-40 min',
-      distance: '1.3 km',
-      rating: '4.9',
-    },
-    {
-      name: 'Freshline',
-      short: 'FL',
-      meta: 'Produce and dairy',
-      tags: ['Dairy', 'Produce'],
-      delivery: '40-55 min',
-      distance: '3.9 km',
-      rating: '4.5',
-    },
-    {
-      name: 'Bulk Depot',
-      short: 'BD',
-      meta: 'Family-size packs',
-      tags: ['Value', 'Bulk'],
-      delivery: '50-70 min',
-      distance: '5.6 km',
-      rating: '4.4',
-    },
-  ];
+export class HomeComponent implements OnInit {
+  stores: StoreWithImages[] = [];
+
+  constructor(private readonly api: ApiService) {}
+
+  ngOnInit(): void {
+    this.api.get<StoreWithImages[]>('/aggregate/engagement/stores-with-images').subscribe({
+      next: (stores) => {
+        debugger
+        this.stores = stores ?? [];
+      },
+      error: () => {
+        this.stores = [];
+      },
+    });
+  }
+
+  getStoreName(store: StoreWithImages): string {
+    if (store.userName) {
+      return store.userName;
+    }
+
+    const fullName = `${store.firstName ?? ''} ${store.lastName ?? ''}`.trim();
+    return fullName || 'Store';
+  }
+
+  getInitials(store: StoreWithImages): string {
+    const name = this.getStoreName(store);
+    const parts = name.split(' ').filter(Boolean);
+    const first = parts[0]?.[0] ?? name.charAt(0);
+    const second = parts[1]?.[0] ?? name.charAt(1);
+    const initials = `${first}${second}`.trim() || name.slice(0, 2);
+    return initials.toUpperCase();
+  }
 }
