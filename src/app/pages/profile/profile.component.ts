@@ -62,7 +62,7 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    this.api.get<GetUserResponse>(`/auth/profile/getOne/${userId}`).subscribe({
+    this.api.get<GetUserResponse>(`/engagement/profile/getOne/${userId}`).subscribe({
       next: (response) => {
         if (response?.isSuccess === false) {
           this.errorMessage =
@@ -92,7 +92,7 @@ export class ProfileComponent implements OnInit {
       },
     });
 
-    this.api.get<GetAddressesResponse>('/auth/profile/getAllAddresses').subscribe({
+    this.api.get<GetAddressesResponse>('/engagement/profile/getAllAddresses').subscribe({
       next: (response) => {
         if (response?.isSuccess === false) {
           return;

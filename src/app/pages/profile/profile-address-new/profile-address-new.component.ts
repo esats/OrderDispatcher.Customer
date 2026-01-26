@@ -56,7 +56,7 @@ export class ProfileAddressNewComponent {
 
     const payload = this.form.getRawValue();
 
-    this.api.post<SaveAddressResponse>('/auth/profile/saveAddress/', payload).subscribe({
+    this.api.post<SaveAddressResponse>('/engagement/profile/saveAddress/', payload).subscribe({
       next: (response) => {
         if (response?.isSuccess === false) {
           this.errorMessage =

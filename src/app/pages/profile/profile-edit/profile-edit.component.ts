@@ -60,7 +60,7 @@ export class ProfileEditComponent implements OnInit {
       return;
     }
 
-    this.api.get<GetUserResponse>(`/auth/profile/getOne/${userId}`).subscribe({
+    this.api.get<GetUserResponse>(`/engagement/profile/getOne/${userId}`).subscribe({
       next: (response) => {
         this.successMessage = '';
         if (response?.isSuccess === false) {
@@ -93,7 +93,7 @@ export class ProfileEditComponent implements OnInit {
 
     const payload = this.form.getRawValue();
 
-    this.api.post<GetUserResponse>('/auth/profile/save', payload).subscribe({
+    this.api.post<GetUserResponse>('/engagement/profile/save', payload).subscribe({
       next: (response) => {
         if (response?.isSuccess === false) {
           this.errorMessage =
