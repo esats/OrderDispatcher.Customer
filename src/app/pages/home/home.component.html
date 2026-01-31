@@ -38,8 +38,14 @@
         </div>
       </div>
       <div class="store-actions">
-        <button mat-stroked-button>Store details</button>
-        <button mat-raised-button color="primary" routerLink="/products">Place order</button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="placeOrder(store)"
+          [disabled]="!getStoreId(store)"
+        >
+          Place order
+        </button>
       </div>
     </mat-card>
   </section>

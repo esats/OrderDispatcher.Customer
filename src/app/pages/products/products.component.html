@@ -13,26 +13,24 @@
 
   <section class="product-grid">
     <mat-card class="product-card" *ngFor="let product of products">
+      <div class="product-image" *ngIf="product.imageUrls?.length">
+        <img [src]="product.imageUrls[0]" [alt]="product.name" />
+      </div>
       <div class="product-top">
         <div>
           <div class="product-name">{{ product.name }}</div>
-          <div class="product-size">{{ product.size }}</div>
+          <div class="product-size">{{ product.description || 'No description' }}</div>
         </div>
-        <div class="product-price">{{ product.price }}</div>
-      </div>
-      <div class="product-tags">
-        <mat-chip-set>
-          <mat-chip *ngFor="let tag of product.tags">{{ tag }}</mat-chip>
-        </mat-chip-set>
+        <div class="product-price">${{ product.price }}</div>
       </div>
       <div class="product-meta">
         <div class="meta-item">
-          <mat-icon>star</mat-icon>
-          <span>{{ product.rating }}</span>
+          <mat-icon>inventory_2</mat-icon>
+          <span>Stock {{ product.stock }}</span>
         </div>
         <div class="meta-item">
           <mat-icon>local_grocery_store</mat-icon>
-          <span>In stock</span>
+          <span>{{ product.stock > 0 ? 'In stock' : 'Out of stock' }}</span>
         </div>
       </div>
       <div class="product-actions">
@@ -40,5 +38,9 @@
         <button mat-raised-button color="primary">Add</button>
       </div>
     </mat-card>
+
+    <div class="empty-state" *ngIf="!products.length">
+      <p>No products found for this store.</p>
+    </div>
   </section>
 </main>

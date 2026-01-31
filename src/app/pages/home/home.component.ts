@@ -5,10 +5,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 
 interface StoreWithImages {
+  id?: number | string;
+  storeId?: number | string;
   userId?: string;
   firstName?: string;
   lastName?: string;
@@ -38,17 +40,33 @@ interface StoreWithImages {
 export class HomeComponent implements OnInit {
   stores: StoreWithImages[] = [];
 
-  constructor(private readonly api: ApiService) {}
+  constructor(
+    private readonly api: ApiService,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
     this.api.get<StoreWithImages[]>('/aggregate/engagement/stores-with-images').subscribe({
       next: (stores) => {
-        debugger
         this.stores = stores ?? [];
       },
       error: () => {
         this.stores = [];
       },
+    });
+  }
+
+  getStoreId(store: StoreWithImages): string | number | undefined {
+    return store.storeId ?? store.id ?? store.userId;
+  }
+
+  placeOrder(store: StoreWithImages): void {
+    const storeId = this.getStoreId(store);
+    if (!storeId) {
+      return;
+    }
+    this.router.navigate(['/products'], {
+      queryParams: { storeId: String(storeId) },
     });
   }
 
