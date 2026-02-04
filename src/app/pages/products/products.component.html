@@ -38,7 +38,7 @@
           <mat-icon>favorite</mat-icon>
         </button>
         <ng-container *ngIf="getQuantity(product.id) === 0; else stepper">
-          <button mat-raised-button color="primary" (click)="increase(product.id)">
+          <button mat-raised-button color="primary" (click)="saveIncrease(product.id)">
             Add
           </button>
         </ng-container>
@@ -57,7 +57,7 @@
             <button
               mat-icon-button
               class="stepper-btn"
-              (click)="increase(product.id)"
+              (click)="saveIncrease(product.id)"
               aria-label="Increase quantity"
             >
               <mat-icon>add</mat-icon>
