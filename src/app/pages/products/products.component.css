@@ -140,6 +140,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .wish-button {
@@ -162,6 +163,33 @@
   border-color: #d13a3a;
   background-color: rgba(209, 58, 58, 0.08);
   transform: translateY(-1px);
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(45, 90, 64, 0.3);
+  background: #f3fbf4;
+}
+
+.stepper-btn {
+  width: 32px;
+  height: 32px;
+  color: #1d4f35;
+}
+
+.stepper-btn:disabled {
+  color: rgba(29, 79, 53, 0.35);
+}
+
+.stepper-qty {
+  min-width: 18px;
+  text-align: center;
+  font-weight: 700;
+  color: #1d4f35;
 }
 
 .empty-state {

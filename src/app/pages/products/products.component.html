@@ -37,7 +37,33 @@
         <button mat-icon-button class="wish-button" aria-label="Add to list">
           <mat-icon>favorite</mat-icon>
         </button>
-        <button mat-raised-button color="primary">Add</button>
+        <ng-container *ngIf="getQuantity(product.id) === 0; else stepper">
+          <button mat-raised-button color="primary" (click)="increase(product.id)">
+            Add
+          </button>
+        </ng-container>
+        <ng-template #stepper>
+          <div class="stepper" aria-label="Quantity stepper">
+            <button
+              mat-icon-button
+              class="stepper-btn"
+              (click)="decrease(product.id)"
+              [disabled]="getQuantity(product.id) === 0"
+              aria-label="Decrease quantity"
+            >
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="stepper-qty">{{ getQuantity(product.id) }}</span>
+            <button
+              mat-icon-button
+              class="stepper-btn"
+              (click)="increase(product.id)"
+              aria-label="Increase quantity"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </ng-template>
       </div>
     </mat-card>
 

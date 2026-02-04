@@ -39,6 +39,7 @@ interface CatalogProduct {
 export class ProductsComponent implements OnInit {
   products: CatalogProduct[] = [];
   storeId = '';
+  quantities: Record<number, number> = {};
 
   constructor(
     private readonly api: ApiService,
@@ -51,6 +52,7 @@ export class ProductsComponent implements OnInit {
       this.storeId = storeId;
       if (!storeId) {
         this.products = [];
+        this.quantities = {};
         return;
       }
 
@@ -60,18 +62,48 @@ export class ProductsComponent implements OnInit {
         .subscribe({
           next: (products) => {
             this.products =
-              products?.map((product) => ({
-                ...product,
-                imageUrls:
-                  product.imageUrls ??
-                  (product as { ImageUrls?: string[] }).ImageUrls ??
-                  [],
-              })) ?? [];
+              products?.map((product, index) => {
+                const raw = product as { Id?: number | string; ID?: number | string };
+                const resolvedId = product.id ?? raw.Id ?? raw.ID ?? index;
+                const numericId =
+                  typeof resolvedId === 'number' ? resolvedId : Number(resolvedId);
+                const id = Number.isFinite(numericId) ? numericId : index;
+
+                return {
+                  ...product,
+                  id,
+                  imageUrls:
+                    product.imageUrls ??
+                    (product as { ImageUrls?: string[] }).ImageUrls ??
+                    [],
+                };
+              }) ?? [];
+            this.quantities = this.products.reduce<Record<number, number>>(
+              (acc, product) => {
+                acc[product.id] = 0;
+                return acc;
+              },
+              {}
+            );
           },
           error: () => {
             this.products = [];
+            this.quantities = {};
           },
         });
     });
+  }
+
+  getQuantity(productId: number): number {
+    return this.quantities[productId] ?? 0;
+  }
+
+  increase(productId: number): void {
+    this.quantities[productId] = this.getQuantity(productId) + 1;
+  }
+
+  decrease(productId: number): void {
+    const current = this.getQuantity(productId);
+    this.quantities[productId] = current <= 1 ? 0 : current - 1;
   }
 }
