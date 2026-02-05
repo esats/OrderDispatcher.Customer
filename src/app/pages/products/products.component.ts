@@ -41,6 +41,15 @@ interface BasketSaveResponse {
   } | null;
 }
 
+interface BasketPreviewItem {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl?: string | null;
+  quantity: number;
+}
+
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -61,6 +70,7 @@ export class ProductsComponent implements OnInit {
   storeId = '';
   quantities: Record<number, number> = {};
   deliveryAddressId = 0;
+  private readonly basketPreviewKey = 'basket_preview';
 
   constructor(
     private readonly api: ApiService,
@@ -130,7 +140,8 @@ export class ProductsComponent implements OnInit {
 
   decrease(productId: number): void {
     const current = this.getQuantity(productId);
-    this.quantities[productId] = current <= 1 ? 0 : current - 1;
+    const nextQuantity = current <= 1 ? 0 : current - 1;
+    this.quantities[productId] = nextQuantity;
   }
 
   saveIncrease(productId: number): void {
