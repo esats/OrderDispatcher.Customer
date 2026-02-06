@@ -13,7 +13,7 @@ interface BasketItem {
   id: number;
   name: string;
   description: string;
-  price: number;
+  productPrice: number;
   imageUrl?: string | null;
   quantity: number;
 }
@@ -25,6 +25,7 @@ interface BasketDetailItem {
   quantity: number;
   unitType: number;
   weight: number;
+  productPrice: number;
 }
 
 interface BasketDetailResponse {
@@ -70,7 +71,7 @@ export class BasketComponent implements OnInit {
   }
 
   get subtotal(): number {
-    return this.basketItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    return this.basketItems.reduce((total, item) => total + item.productPrice * item.quantity, 0);
   }
 
   get total(): number {
@@ -116,7 +117,7 @@ export class BasketComponent implements OnInit {
             id: item.productId,
             name: item.productName ?? '',
             description: '',
-            price: 0,
+            productPrice: item.productPrice,
             imageUrl: item.imageUrl ?? null,
             quantity: item.quantity ?? 0,
           }));

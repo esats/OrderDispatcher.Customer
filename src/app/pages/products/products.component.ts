@@ -28,6 +28,7 @@ interface BasketSaveRequest {
   DeliveryAddressId: number;
   ProductId: number;
   Quantity: number;
+  ProductPrice: number;
   UnitType: number;
   Weight: number;
 }
@@ -143,52 +144,14 @@ export class ProductsComponent implements OnInit {
   }
 
   increase(productId: number): void {
-    this.quantities[productId] = this.getQuantity(productId) + 1;
+    this.updateQuantity(productId, 1);
   }
 
   decrease(productId: number): void {
-    this.saveDecrease(productId);
+    this.updateQuantity(productId, -1);
   }
 
-  saveIncrease(productId: number): void {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      console.error('No user id found. Please log in again.');
-      return;
-    }
-
-    if (!this.storeId) {
-      console.error('No store id found. Please select a store again.');
-      return;
-    }
-
-    const nextQuantity = this.getQuantity(productId) + 1;
-    const payload: BasketSaveRequest = {
-      UserId: userId,
-      StoreId: this.storeId,
-      DeliveryAddressId: this.deliveryAddressId,
-      ProductId: productId,
-      Quantity: nextQuantity,
-      UnitType: 0,
-      Weight: 0,
-    };
-
-    this.api.post<BasketSaveResponse>('/order-management/basket/save', payload).subscribe({
-      next: (response) => {
-        if (response?.isSuccess === false) {
-          console.error(response?.message || 'Unable to save basket item.');
-          return;
-        }
-
-        this.quantities[productId] = nextQuantity;
-      },
-      error: (err) => {
-        console.error(err?.message || 'Unable to save basket item.');
-      },
-    });
-  }
-
-  saveDecrease(productId: number): void {
+  private updateQuantity(productId: number, delta: number): void {
     const userId = this.authService.getUserId();
     if (!userId) {
       console.error('No user id found. Please log in again.');
@@ -201,17 +164,18 @@ export class ProductsComponent implements OnInit {
     }
 
     const current = this.getQuantity(productId);
-    if (current <= 0) {
+    const nextQuantity = Math.max(0, current + delta);
+    if (nextQuantity === current) {
       return;
     }
 
-    const nextQuantity = current <= 1 ? 0 : current - 1;
     const payload: BasketSaveRequest = {
       UserId: userId,
       StoreId: this.storeId,
       DeliveryAddressId: this.deliveryAddressId,
       ProductId: productId,
       Quantity: nextQuantity,
+      ProductPrice: this.getProductPrice(productId),
       UnitType: 0,
       Weight: 0,
     };
@@ -229,6 +193,10 @@ export class ProductsComponent implements OnInit {
         console.error(err?.message || 'Unable to save basket item.');
       },
     });
+  }
+
+  private getProductPrice(productId: number): number {
+    return this.products.find((product) => product.id === productId)?.price ?? 0;
   }
 
   private loadBasketForStore(): void {
