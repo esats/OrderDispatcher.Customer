@@ -10,22 +10,16 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 
 interface BasketItem {
-  id: number;
-  name: string;
-  description: string;
+  id?: number;
+  name?: string;
+  productId?: number;
+  productName?: string;
+  description?: string;
   productPrice: number;
   imageUrl?: string | null;
   quantity: number;
-}
-
-interface BasketDetailItem {
-  productId: number;
-  productName: string;
-  imageUrl?: string | null;
-  quantity: number;
-  unitType: number;
-  weight: number;
-  productPrice: number;
+  unitType?: number;
+  weight?: number;
 }
 
 interface BasketDetailResponse {
@@ -33,7 +27,7 @@ interface BasketDetailResponse {
   storeId: string;
   basketMasterId: number;
   deliveryAddressId: number;
-  items: BasketDetailItem[];
+  items: BasketItem[];
 }
 
 @Component({
@@ -114,12 +108,14 @@ export class BasketComponent implements OnInit {
         next: (response) => {
           const items = response?.items ?? [];
           this.basketItems = items.map((item) => ({
-            id: item.productId,
-            name: item.productName ?? '',
-            description: '',
+            id: item.id ?? item.productId ?? 0,
+            name: item.name ?? item.productName ?? '',
+            description: item.description ?? '',
             productPrice: item.productPrice,
             imageUrl: item.imageUrl ?? null,
             quantity: item.quantity ?? 0,
+            unitType: item.unitType,
+            weight: item.weight,
           }));
         },
         error: (err) => {
