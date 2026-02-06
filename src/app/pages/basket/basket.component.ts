@@ -1,10 +1,13 @@
 import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 interface BasketItem {
   id: number;
@@ -13,6 +16,23 @@ interface BasketItem {
   price: number;
   imageUrl?: string | null;
   quantity: number;
+}
+
+interface BasketDetailItem {
+  productId: number;
+  productName: string;
+  imageUrl?: string | null;
+  quantity: number;
+  unitType: number;
+  weight: number;
+}
+
+interface BasketDetailResponse {
+  userId: string;
+  storeId: string;
+  basketMasterId: number;
+  deliveryAddressId: number;
+  items: BasketDetailItem[];
 }
 
 @Component({
@@ -35,14 +55,17 @@ export class BasketComponent implements OnInit {
   basketItems: BasketItem[] = [];
   storeId = '';
   deliveryWindow = 'Today, 3:00 PM - 5:00 PM';
-  private readonly basketPreviewKey = 'basket_preview';
 
-  constructor(private readonly route: ActivatedRoute) {}
+  constructor(
+    private readonly route: ActivatedRoute,
+    private readonly api: ApiService,
+    private readonly authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
       this.storeId = params.get('storeId') ?? '';
-      this.loadBasket();
+      this.loadBasketDetail();
     });
   }
 
@@ -56,7 +79,6 @@ export class BasketComponent implements OnInit {
 
   increase(item: BasketItem): void {
     item.quantity += 1;
-    this.saveBasket();
   }
 
   decrease(item: BasketItem): void {
@@ -64,21 +86,45 @@ export class BasketComponent implements OnInit {
     if (item.quantity === 0) {
       this.basketItems = this.basketItems.filter((entry) => entry.id !== item.id);
     }
-    this.saveBasket();
   }
 
   remove(item: BasketItem): void {
     this.basketItems = this.basketItems.filter((entry) => entry.id !== item.id);
-    this.saveBasket();
   }
 
-  private loadBasket(): void {
-    const stored = localStorage.getItem(this.basketPreviewKey);
-    const parsed: BasketItem[] = stored ? JSON.parse(stored) : [];
-    this.basketItems = Array.isArray(parsed) ? parsed : [];
-  }
+  private loadBasketDetail(): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      console.error('No user id found. Please log in again.');
+      this.basketItems = [];
+      return;
+    }
 
-  private saveBasket(): void {
-    localStorage.setItem(this.basketPreviewKey, JSON.stringify(this.basketItems));
+    let params = new HttpParams().set('userId', userId);
+    if (this.storeId) {
+      params = params.set('storeId', this.storeId);
+    }
+
+    this.api
+      .get<BasketDetailResponse>('/aggregate/order-management/basketDetail', {
+        params,
+      })
+      .subscribe({
+        next: (response) => {
+          const items = response?.items ?? [];
+          this.basketItems = items.map((item) => ({
+            id: item.productId,
+            name: item.productName ?? '',
+            description: '',
+            price: 0,
+            imageUrl: item.imageUrl ?? null,
+            quantity: item.quantity ?? 0,
+          }));
+        },
+        error: (err) => {
+          console.error(err?.message || 'Unable to load basket details.');
+          this.basketItems = [];
+        },
+      });
   }
 }
