@@ -25,6 +25,10 @@
           <div class="store-name">{{ getStoreName(store) }}</div>
           <div class="store-meta">{{ store.email || 'No email listed' }}</div>
         </div>
+        <div class="store-badge" *ngIf="getBasketCount(store) > 0">
+          <mat-icon>shopping_basket</mat-icon>
+          <span>{{ getBasketCount(store) }}</span>
+        </div>
       </div>
       <mat-divider></mat-divider>
       <div class="store-body">
