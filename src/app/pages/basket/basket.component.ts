@@ -30,6 +30,26 @@ interface BasketDetailResponse {
   items: BasketItem[];
 }
 
+interface BasketSaveRequest {
+  UserId: string;
+  StoreId: string;
+  DeliveryAddressId: number;
+  ProductId: number;
+  Quantity: number;
+  ProductPrice: number;
+  UnitType: number;
+  Weight: number;
+}
+
+interface BasketSaveResponse {
+  isSuccess?: boolean;
+  message?: string | null;
+  value?: {
+    basketMasterId?: number;
+    basketDetailId?: number;
+  } | null;
+}
+
 @Component({
   selector: 'app-basket',
   standalone: true,
@@ -50,6 +70,7 @@ export class BasketComponent implements OnInit {
   basketItems: BasketItem[] = [];
   storeId = '';
   deliveryWindow = 'Today, 3:00 PM - 5:00 PM';
+  deliveryAddressId = 0;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -73,18 +94,15 @@ export class BasketComponent implements OnInit {
   }
 
   increase(item: BasketItem): void {
-    item.quantity += 1;
+    this.updateQuantity(item, 1);
   }
 
   decrease(item: BasketItem): void {
-    item.quantity = Math.max(0, item.quantity - 1);
-    if (item.quantity === 0) {
-      this.basketItems = this.basketItems.filter((entry) => entry.id !== item.id);
-    }
+    this.updateQuantity(item, -1);
   }
 
   remove(item: BasketItem): void {
-    this.basketItems = this.basketItems.filter((entry) => entry.id !== item.id);
+    this.setQuantity(item, 0);
   }
 
   private loadBasketDetail(): void {
@@ -107,8 +125,15 @@ export class BasketComponent implements OnInit {
       .subscribe({
         next: (response) => {
           const items = response?.items ?? [];
+          if (response?.storeId && !this.storeId) {
+            this.storeId = response.storeId;
+          }
+          if (response?.deliveryAddressId) {
+            this.deliveryAddressId = response.deliveryAddressId;
+          }
           this.basketItems = items.map((item) => ({
             id: item.id ?? item.productId ?? 0,
+            productId: item.productId ?? item.id ?? 0,
             name: item.name ?? item.productName ?? '',
             description: item.description ?? '',
             productPrice: item.productPrice,
@@ -123,5 +148,73 @@ export class BasketComponent implements OnInit {
           this.basketItems = [];
         },
       });
+  }
+
+  private updateQuantity(item: BasketItem, delta: number): void {
+    const current = item.quantity ?? 0;
+    const nextQuantity = Math.max(0, current + delta);
+    if (nextQuantity === current) {
+      return;
+    }
+
+    this.saveQuantity(item, nextQuantity);
+  }
+
+  private setQuantity(item: BasketItem, quantity: number): void {
+    const nextQuantity = Math.max(0, quantity);
+    if ((item.quantity ?? 0) === nextQuantity) {
+      return;
+    }
+
+    this.saveQuantity(item, nextQuantity);
+  }
+
+  private saveQuantity(item: BasketItem, nextQuantity: number): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      console.error('No user id found. Please log in again.');
+      return;
+    }
+
+    const productId = item.productId ?? item.id ?? 0;
+    if (!productId) {
+      console.error('No product id found for basket item.');
+      return;
+    }
+
+    if (!this.storeId) {
+      console.error('No store id found. Please select a store again.');
+      return;
+    }
+
+    const payload: BasketSaveRequest = {
+      UserId: userId,
+      StoreId: this.storeId,
+      DeliveryAddressId: this.deliveryAddressId,
+      ProductId: productId,
+      Quantity: nextQuantity,
+      ProductPrice: item.productPrice ?? 0,
+      UnitType: item.unitType ?? 0,
+      Weight: item.weight ?? 0,
+    };
+
+    this.api.post<BasketSaveResponse>('/order-management/basket/save', payload).subscribe({
+      next: (response) => {
+        if (response?.isSuccess === false) {
+          console.error(response?.message || 'Unable to save basket item.');
+          return;
+        }
+
+        item.quantity = nextQuantity;
+        if (nextQuantity === 0) {
+          this.basketItems = this.basketItems.filter(
+            (entry) => (entry.productId ?? entry.id) !== productId
+          );
+        }
+      },
+      error: (err) => {
+        console.error(err?.message || 'Unable to save basket item.');
+      },
+    });
   }
 }
