@@ -41,13 +41,20 @@ interface BasketSaveResponse {
   } | null;
 }
 
-interface BasketPreviewItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl?: string | null;
+interface BasketDetail {
+  basketMasterId: number;
+  productId: number;
   quantity: number;
+  unitType: number;
+  weight: number;
+}
+
+interface BasketGetOneResponse {
+  userId: string;
+  storeId: string;
+  basketMasterId: number;
+  deliveryAddressId: number;
+  items: BasketDetail[];
 }
 
 @Component({
@@ -121,6 +128,7 @@ export class ProductsComponent implements OnInit {
               },
               {}
             );
+            this.loadBasketForStore();
           },
           error: () => {
             this.products = [];
@@ -139,13 +147,10 @@ export class ProductsComponent implements OnInit {
   }
 
   decrease(productId: number): void {
-    const current = this.getQuantity(productId);
-    const nextQuantity = current <= 1 ? 0 : current - 1;
-    this.quantities[productId] = nextQuantity;
+    this.saveDecrease(productId);
   }
 
   saveIncrease(productId: number): void {
-    debugger
     const userId = this.authService.getUserId();
     if (!userId) {
       console.error('No user id found. Please log in again.');
@@ -179,6 +184,79 @@ export class ProductsComponent implements OnInit {
       },
       error: (err) => {
         console.error(err?.message || 'Unable to save basket item.');
+      },
+    });
+  }
+
+  saveDecrease(productId: number): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      console.error('No user id found. Please log in again.');
+      return;
+    }
+
+    if (!this.storeId) {
+      console.error('No store id found. Please select a store again.');
+      return;
+    }
+
+    const current = this.getQuantity(productId);
+    if (current <= 0) {
+      return;
+    }
+
+    const nextQuantity = current <= 1 ? 0 : current - 1;
+    const payload: BasketSaveRequest = {
+      UserId: userId,
+      StoreId: this.storeId,
+      DeliveryAddressId: this.deliveryAddressId,
+      ProductId: productId,
+      Quantity: nextQuantity,
+      UnitType: 0,
+      Weight: 0,
+    };
+
+    this.api.post<BasketSaveResponse>('/order-management/basket/save', payload).subscribe({
+      next: (response) => {
+        if (response?.isSuccess === false) {
+          console.error(response?.message || 'Unable to save basket item.');
+          return;
+        }
+
+        this.quantities[productId] = nextQuantity;
+      },
+      error: (err) => {
+        console.error(err?.message || 'Unable to save basket item.');
+      },
+    });
+  }
+
+  private loadBasketForStore(): void {
+    debugger
+    const userId = this.authService.getUserId();
+    if (!userId || !this.storeId) {
+      return;
+    }
+
+    const params = new HttpParams().set('userId', userId).set('storeId', this.storeId);
+    this.api.get<BasketGetOneResponse>('/order-management/basket/getOne', { params }).subscribe({
+      next: (response) => {
+        const items = response?.items ?? [];
+        const nextQuantities = { ...this.quantities };
+
+        for (const item of items) {
+          if (Object.prototype.hasOwnProperty.call(nextQuantities, item.productId)) {
+            nextQuantities[item.productId] = item.quantity ?? 0;
+          }
+        }
+
+        this.quantities = nextQuantities;
+        if (response?.deliveryAddressId) {
+          this.deliveryAddressId = response.deliveryAddressId;
+        }
+      },
+      error: (err) => {
+        console.error(err?.message || 'Unable to load basket details.');
       },
     });
   }

@@ -54,7 +54,7 @@
             <button
               mat-icon-button
               class="stepper-btn"
-              (click)="decrease(product.id)"
+              (click)="saveDecrease(product.id)"
               [disabled]="getQuantity(product.id) === 0"
               aria-label="Decrease quantity"
             >
