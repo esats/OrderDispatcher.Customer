@@ -1,4 +1,5 @@
 import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,6 +51,22 @@ interface BasketSaveResponse {
   } | null;
 }
 
+interface PlaceOrderRequest {
+  CustomerId: string;
+  StoreId: string;
+  BasketMasterId: number;
+  ShopperId?: string | null;
+  Subtotal?: number | null;
+  Tip?: number | null;
+  Total?: number | null;
+}
+
+interface PlaceOrderResponse {
+  isSuccess?: boolean;
+  message?: string | null;
+  value?: unknown;
+}
+
 @Component({
   selector: 'app-basket',
   standalone: true,
@@ -57,6 +74,7 @@ interface BasketSaveResponse {
     CurrencyPipe,
     NgFor,
     NgIf,
+    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,
@@ -71,6 +89,11 @@ export class BasketComponent implements OnInit {
   storeId = '';
   deliveryWindow = 'Today, 3:00 PM - 5:00 PM';
   deliveryAddressId = 0;
+  basketMasterId = 0;
+  showTipModal = false;
+  tip: number | null = null;
+  orderSuccess = false;
+  isPlacingOrder = false;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -105,6 +128,67 @@ export class BasketComponent implements OnInit {
     this.setQuantity(item, 0);
   }
 
+  openTipModal(): void {
+    if (!this.basketItems.length) {
+      return;
+    }
+
+    this.tip = null;
+    this.showTipModal = true;
+  }
+
+  closeTipModal(): void {
+    if (this.isPlacingOrder) {
+      return;
+    }
+    this.showTipModal = false;
+  }
+
+  confirmPlaceOrder(): void {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      console.error('No user id found. Please log in again.');
+      return;
+    }
+
+    if (!this.storeId) {
+      console.error('No store id found. Please select a store again.');
+      return;
+    }
+
+    if (!this.basketMasterId) {
+      console.error('No basket master id found. Please reload your basket.');
+      return;
+    }
+
+    this.isPlacingOrder = true;
+    const payload: PlaceOrderRequest = {
+      CustomerId: userId,
+      StoreId: this.storeId,
+      Tip:this.tip,
+      BasketMasterId: this.basketMasterId,
+      ShopperId: null,
+      Subtotal: this.subtotal,
+      Total: this.total,
+    };
+
+    this.api.post<PlaceOrderResponse>('/order-management/order/save', payload).subscribe({
+      next: (response) => {
+        this.isPlacingOrder = false;
+        if (response?.isSuccess === false) {
+          console.error(response?.message || 'Unable to place order.');
+          return;
+        }
+        this.showTipModal = false;
+        this.orderSuccess = true;
+      },
+      error: (err) => {
+        this.isPlacingOrder = false;
+        console.error(err?.message || 'Unable to place order.');
+      },
+    });
+  }
+
   private loadBasketDetail(): void {
     const userId = this.authService.getUserId();
     if (!userId) {
@@ -130,6 +214,9 @@ export class BasketComponent implements OnInit {
           }
           if (response?.deliveryAddressId) {
             this.deliveryAddressId = response.deliveryAddressId;
+          }
+          if (response?.basketMasterId) {
+            this.basketMasterId = response.basketMasterId;
           }
           this.basketItems = items.map((item) => ({
             id: item.id ?? item.productId ?? 0,

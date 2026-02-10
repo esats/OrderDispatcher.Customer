@@ -1,110 +1,156 @@
 <main class="page">
-  <header class="hero">
-    <div>
-      <div class="eyebrow">OrderDispatch Customer</div>
-      <h1>Your basket</h1>
-      <p class="subline">Review items, adjust quantities, and head to checkout.</p>
-    </div>
-    <div class="hero-actions">
-      <button
-        mat-stroked-button
-        routerLink="/products"
-        [queryParams]="{ storeId: storeId }"
-      >
-        Continue shopping
-      </button>
-      <button mat-raised-button color="primary" [disabled]="!basketItems.length">
-        Checkout
-      </button>
-    </div>
-  </header>
-
-  <section class="basket-layout" *ngIf="basketItems.length; else emptyState">
-    <section class="basket-items">
-      <mat-card class="basket-card" *ngFor="let item of basketItems">
-        <div class="basket-row">
-          <div class="item-image" [class.placeholder]="!item.imageUrl">
-            <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.name" />
-            <mat-icon *ngIf="!item.imageUrl">shopping_bag</mat-icon>
-          </div>
-          <div class="item-info">
-            <div class="item-name">{{ item.name }}</div>
-            <div class="item-desc">{{ item.description || 'Fresh pick' }}</div>
-            <div class="item-meta">
-              <span>{{ item.productPrice | currency : 'USD' }}</span>
-              <span class="divider-dot">•</span>
-              <span>In stock</span>
-            </div>
-          </div>
-          <div class="item-actions">
-            <div class="stepper">
-              <button
-                mat-icon-button
-                class="stepper-btn"
-                (click)="decrease(item)"
-                [disabled]="item.quantity === 0"
-                aria-label="Decrease quantity"
-              >
-                <mat-icon>remove</mat-icon>
-              </button>
-              <span class="stepper-qty">{{ item.quantity }}</span>
-              <button
-                mat-icon-button
-                class="stepper-btn"
-                (click)="increase(item)"
-                aria-label="Increase quantity"
-              >
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-            <button mat-button class="remove-btn" (click)="remove(item)">
-              Remove
-            </button>
-          </div>
-        </div>
-      </mat-card>
-
-    </section>
-
-    <aside class="basket-summary">
-      <mat-card class="summary-card">
-        <div class="summary-header">
-          <div>
-            <div class="summary-title">Delivery window</div>
-            <div class="summary-sub">{{ deliveryWindow }}</div>
-          </div>
-          <button mat-button>Change</button>
-        </div>
-        <mat-divider></mat-divider>
-        <div class="summary-line">
-          <span>Items subtotal</span>
-          <strong>{{ subtotal | currency : 'USD' }}</strong>
-        </div>
-        <mat-divider></mat-divider>
-        <div class="summary-total">
-          <span>Total</span>
-          <strong>{{ total | currency : 'USD' }}</strong>
-        </div>
-        <button mat-raised-button color="primary" class="checkout-btn">
-          Place order
-        </button>
-      </mat-card>
-    </aside>
+  <section class="success-state" *ngIf="orderSuccess; else basketContent">
+    <mat-icon>check_circle</mat-icon>
+    <h2>Order created successfully</h2>
+    <p>Your order has been placed. We will notify you when it is confirmed.</p>
+    <button mat-raised-button color="primary" routerLink="/products">
+      Continue shopping
+    </button>
   </section>
 
-  <ng-template #emptyState>
-    <section class="empty-state">
-      <mat-icon>shopping_cart</mat-icon>
-      <h2>Your basket is empty</h2>
-      <p>Add a few items to see them here like Instacart.</p>
+  <ng-template #basketContent>
+    <header class="hero">
+      <div>
+        <div class="eyebrow">OrderDispatch Customer</div>
+        <h1>Your basket</h1>
+        <p class="subline">Review items, adjust quantities, and head to checkout.</p>
+      </div>
+      <div class="hero-actions">
+        <button
+          mat-stroked-button
+          routerLink="/products"
+          [queryParams]="{ storeId: storeId }"
+        >
+          Continue shopping
+        </button>
+        <button mat-raised-button color="primary" [disabled]="!basketItems.length">
+          Checkout
+        </button>
+      </div>
+    </header>
+
+    <section class="basket-layout" *ngIf="basketItems.length; else emptyState">
+      <section class="basket-items">
+        <mat-card class="basket-card" *ngFor="let item of basketItems">
+          <div class="basket-row">
+            <div class="item-image" [class.placeholder]="!item.imageUrl">
+              <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.name" />
+              <mat-icon *ngIf="!item.imageUrl">shopping_bag</mat-icon>
+            </div>
+            <div class="item-info">
+              <div class="item-name">{{ item.name }}</div>
+              <div class="item-desc">{{ item.description || 'Fresh pick' }}</div>
+              <div class="item-meta">
+                <span>{{ item.productPrice | currency : 'USD' }}</span>
+                <span class="divider-dot">â€¢</span>
+                <span>In stock</span>
+              </div>
+            </div>
+            <div class="item-actions">
+              <div class="stepper">
+                <button
+                  mat-icon-button
+                  class="stepper-btn"
+                  (click)="decrease(item)"
+                  [disabled]="item.quantity === 0"
+                  aria-label="Decrease quantity"
+                >
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <span class="stepper-qty">{{ item.quantity }}</span>
+                <button
+                  mat-icon-button
+                  class="stepper-btn"
+                  (click)="increase(item)"
+                  aria-label="Increase quantity"
+                >
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              <button mat-button class="remove-btn" (click)="remove(item)">
+                Remove
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      </section>
+
+      <aside class="basket-summary">
+        <mat-card class="summary-card">
+          <div class="summary-header">
+            <div>
+              <div class="summary-title">Delivery window</div>
+              <div class="summary-sub">{{ deliveryWindow }}</div>
+            </div>
+            <button mat-button>Change</button>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="summary-line">
+            <span>Items subtotal</span>
+            <strong>{{ subtotal | currency : 'USD' }}</strong>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="summary-total">
+            <span>Total</span>
+            <strong>{{ total | currency : 'USD' }}</strong>
+          </div>
+          <button
+            mat-raised-button
+            color="primary"
+            class="checkout-btn"
+            [disabled]="!basketItems.length"
+            (click)="openTipModal()"
+          >
+            Place order
+          </button>
+        </mat-card>
+      </aside>
+    </section>
+
+    <ng-template #emptyState>
+      <section class="empty-state">
+        <mat-icon>shopping_cart</mat-icon>
+        <h2>Your basket is empty</h2>
+        <p>Add a few items to see them here like Instacart.</p>
+        <button
+          mat-raised-button
+          color="primary"
+          routerLink="/products"
+          [queryParams]="{ storeId: storeId }"
+        >
+          Browse products
+        </button>
+      </section>
+    </ng-template>
+  </ng-template>
+</main>
+
+<section class="modal-backdrop" *ngIf="showTipModal">
+  <div class="modal-card" role="dialog" aria-modal="true">
+    <h3>Add a tip</h3>
+    <p>Support your shopper with a tip. You can edit this later.</p>
+    <label class="tip-field">
+      <span>Tip amount (USD)</span>
+      <input
+        type="number"
+        min="0"
+        step="0.01"
+        [(ngModel)]="tip"
+        placeholder="0.00"
+      />
+    </label>
+    <div class="modal-actions">
+      <button mat-button (click)="closeTipModal()" [disabled]="isPlacingOrder">
+        Cancel
+      </button>
       <button
         mat-raised-button
         color="primary"
-        routerLink="/products"
-        [queryParams]="{ storeId: storeId }"
+        (click)="confirmPlaceOrder()"
+        [disabled]="isPlacingOrder"
       >
-        Browse products
+        {{ isPlacingOrder ? 'Placing order...' : 'Confirm order' }}
       </button>
-    </section>
-  </ng-template>
-</main>
+    </div>
+  </div>
+</section>
