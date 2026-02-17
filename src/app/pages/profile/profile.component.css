@@ -158,27 +158,26 @@
   justify-content: flex-end;
 }
 
-.pill-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 0 16px;
-}
-
-.note {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  color: #2d5a40;
-  background: #eef7ef;
-  border-radius: 12px;
-  padding: 10px 12px;
-  margin: 0 16px;
-  font-size: 13px;
-}
-
 mat-icon {
   color: #2d5a40;
+}
+
+.store-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.store-thumb-icon {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  font-size: 20px;
+}
+
+.order-list-item {
+  align-items: center;
 }
 
 @media (max-width: 600px) {

@@ -1,4 +1,5 @@
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
+import { HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -27,11 +28,42 @@ interface GetAddressesResponse {
   value?: AddressItem[] | null;
 }
 
+interface CustomerOrdersResponse {
+  customerId: string;
+  orders: OrderDetail[];
+}
+
+interface OrderDetail {
+  id: number;
+  storeId: string;
+  storeName: string;
+  storeImageUrl: string;
+  customerId: string;
+  shopperId?: string | null;
+  basketMasterId: number;
+  assignedAtUtc?: string | null;
+  status: number;
+  subtotal?: number | null;
+  deliveryFee?: number | null;
+  serviceFee?: number | null;
+  tip?: number | null;
+  total?: number | null;
+  notes?: string | null;
+}
+
+interface RecentOrderItem {
+  title: string;
+  subtitle: string;
+  chipLabel: string;
+  storeImageUrl: string;
+}
+
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [
     NgFor,
+    NgIf,
     MatButtonModule,
     MatCardModule,
     MatChipsModule,
@@ -49,6 +81,8 @@ export class ProfileComponent implements OnInit {
   sinceYear = '';
   errorMessage = '';
   addresses: AddressItem[] = [];
+  totalOrders = 0;
+  recentOrders: RecentOrderItem[] = [];
 
   constructor(
     private readonly api: ApiService,
@@ -104,6 +138,8 @@ export class ProfileComponent implements OnInit {
         this.addresses = [];
       },
     });
+
+    this.loadCustomerOrders(userId);
   }
 
   private readField(
@@ -157,5 +193,94 @@ export class ProfileComponent implements OnInit {
     }
 
     return value;
+  }
+
+  private loadCustomerOrders(userId: string): void {
+    const params = new HttpParams().set('customerId', userId);
+    this.api
+      .get<CustomerOrdersResponse>('/aggregate/order-management/customerOrders', {
+        params,
+      })
+      .subscribe({
+        next: (response) => {
+          const orders = response?.orders ?? [];
+          const mappedOrders = orders
+            .map((order, index) => this.mapOrder(order, index))
+            .sort((a, b) => b.sortTime - a.sortTime);
+
+          this.totalOrders = orders.length;
+          this.recentOrders = mappedOrders.slice(0, 5).map((order) => ({
+            title: order.title,
+            subtitle: order.subtitle,
+            chipLabel: order.chipLabel,
+            storeImageUrl: order.storeImageUrl,
+          }));
+        },
+        error: () => {
+          this.totalOrders = 0;
+          this.recentOrders = [];
+        },
+      });
+  }
+
+  private mapOrder(order: OrderDetail, index: number): {
+    title: string;
+    subtitle: string;
+    chipLabel: string;
+    storeImageUrl: string;
+    sortTime: number;
+  } {
+    const title = order.storeName || `Order ${index + 1}`;
+    const status = this.getOrderStatusLabel(order.status);
+    const dateRaw = order.assignedAtUtc ?? '';
+    const dateText = this.formatOrderDate(dateRaw);
+    const totalText = this.formatCurrency(order.total);
+    const subtitle = [dateText, totalText].filter(Boolean).join(' - ') || 'Recent order';
+
+    const parsedTime = dateRaw ? new Date(dateRaw).getTime() : NaN;
+    return {
+      title,
+      subtitle,
+      chipLabel: status,
+      storeImageUrl: order.storeImageUrl || '',
+      sortTime: Number.isNaN(parsedTime) ? 0 : parsedTime,
+    };
+  }
+
+  private formatOrderDate(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+
+    return parsed.toLocaleDateString();
+  }
+
+  private formatCurrency(value: number | null | undefined): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return `$${value.toFixed(2)}`;
+  }
+
+  private getOrderStatusLabel(status: number): string {
+    switch (status) {
+      case 0:
+        return 'Pending';
+      case 1:
+        return 'Assigned';
+      case 2:
+        return 'In progress';
+      case 3:
+        return 'Delivered';
+      case 4:
+        return 'Cancelled';
+      default:
+        return `Status ${status}`;
+    }
   }
 }

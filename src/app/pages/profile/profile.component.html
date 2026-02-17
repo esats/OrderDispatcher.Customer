@@ -22,16 +22,8 @@
     </div>
     <div class="hero-stats">
       <mat-card class="stat-card">
-        <div class="stat-value">148</div>
-        <div class="stat-label">Orders delivered</div>
-      </mat-card>
-      <mat-card class="stat-card highlight">
-        <div class="stat-value">$1,240</div>
-        <div class="stat-label">Total savings</div>
-      </mat-card>
-      <mat-card class="stat-card">
-        <div class="stat-value">4.9</div>
-        <div class="stat-label">Shopper rating</div>
+        <div class="stat-value">{{ totalOrders }}</div>
+        <div class="stat-label">Total orders</div>
       </mat-card>
     </div>
   </header>
@@ -53,51 +45,32 @@
     </mat-card>
 
     <mat-card class="card">
-      <div class="card-title">Shopping preferences</div>
-      <mat-divider></mat-divider>
-      <div class="pill-group">
-        <mat-chip>Organic first</mat-chip>
-        <mat-chip>Contactless delivery</mat-chip>
-        <mat-chip>Leave at door</mat-chip>
-        <mat-chip>Eco-friendly bags</mat-chip>
-        <mat-chip>Use substitutions</mat-chip>
-      </div>
-      <div class="note">
-        <mat-icon>info</mat-icon>
-        <span>Replacements set to "best match" for produce and pantry items.</span>
-      </div>
-      <button mat-button color="primary">Update preferences</button>
-    </mat-card>
-
-    <mat-card class="card">
       <div class="card-title">Recent orders</div>
       <mat-divider></mat-divider>
       <mat-list class="dense-list">
-        <mat-list-item>
-          <mat-icon matListItemIcon>local_grocery_store</mat-icon>
-          <div matListItemTitle>Whole Foods Market</div>
-          <div matListItemLine>Delivered today - 32 items</div>
-          <mat-chip-set>
-            <mat-chip color="primary">On time</mat-chip>
-          </mat-chip-set>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-icon matListItemIcon>local_grocery_store</mat-icon>
-          <div matListItemTitle>Costco</div>
-          <div matListItemLine>Delivered Jan 11 - 18 items</div>
-          <mat-chip-set>
-            <mat-chip>Substitutions</mat-chip>
-          </mat-chip-set>
-        </mat-list-item>
-        <mat-list-item>
-          <mat-icon matListItemIcon>local_grocery_store</mat-icon>
-          <div matListItemTitle>Trader Joe's</div>
-          <div matListItemLine>Delivered Jan 05 - 21 items</div>
-          <mat-chip-set>
-            <mat-chip>Promo applied</mat-chip>
-          </mat-chip-set>
-        </mat-list-item>
+        <ng-container *ngIf="recentOrders.length; else emptyRecentOrders">
+          <mat-list-item class="order-list-item" *ngFor="let order of recentOrders">
+            <img
+              *ngIf="order.storeImageUrl"
+              matListItemIcon
+              class="store-thumb"
+              [src]="order.storeImageUrl"
+              [alt]="order.title"
+            />
+            <mat-icon *ngIf="!order.storeImageUrl" matListItemIcon class="store-thumb-icon">
+              local_grocery_store
+            </mat-icon>
+            <div matListItemTitle>{{ order.title }}</div>
+            <div matListItemLine>{{ order.subtitle }}</div>
+            <mat-chip-set>
+              <mat-chip>{{ order.chipLabel }}</mat-chip>
+            </mat-chip-set>
+          </mat-list-item>
+        </ng-container>
       </mat-list>
+      <ng-template #emptyRecentOrders>
+        <div class="empty-state">No recent orders found.</div>
+      </ng-template>
       <button mat-button color="primary">View order history</button>
     </mat-card>
   </section>
